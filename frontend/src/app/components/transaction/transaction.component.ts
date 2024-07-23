@@ -778,9 +778,11 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
         if (transactionTimes?.length && transactionTimes[0]) {
           this.transactionTime = transactionTimes[0];
         } else {
-          setTimeout(() => {
-            this.getTransactionTime();
-          }, 2000);
+            if (!this.tx.status?.confirmed) {
+            setTimeout(() => {
+              this.getTransactionTime();
+            }, 2000);
+          }
         }
       });
   }
