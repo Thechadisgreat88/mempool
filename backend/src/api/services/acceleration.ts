@@ -37,7 +37,7 @@ export interface AccelerationHistory {
 };
 
 class AccelerationApi {
-  private apiPath = config.MEMPOOL.OFFICIAL ? (config.MEMPOOL_SERVICES.API + '/accelerator/accelerations') : (config.EXTERNAL_DATA_SERVER.MEMPOOL_API + '/accelerations');
+  private apiPath = config.MEMPOOL_SERVICES.API + '/accelerator/accelerations';
   private _accelerations: Acceleration[] | null = null;
   private lastPoll = 0;
   private forcePoll = false;
