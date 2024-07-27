@@ -71,6 +71,7 @@ export interface Env {
   SIGNET_BLOCK_AUDIT_START_HEIGHT: number;
   HISTORICAL_PRICE: boolean;
   ACCELERATOR: boolean;
+  ACCELERATOR_BUTTON: boolean;
   PUBLIC_ACCELERATIONS: boolean;
   ADDITIONAL_CURRENCIES: boolean;
   GIT_COMMIT_HASH_MEMPOOL_SPACE?: string;
@@ -108,6 +109,7 @@ const defaultEnv: Env = {
   'SIGNET_BLOCK_AUDIT_START_HEIGHT': 0,
   'HISTORICAL_PRICE': true,
   'ACCELERATOR': false,
+  'ACCELERATOR_BUTTON': true,
   'PUBLIC_ACCELERATIONS': false,
   'ADDITIONAL_CURRENCIES': false,
   'SERVICES_API': 'https://mempool.space/api/v1/services',
@@ -136,7 +138,7 @@ export class StateService {
   blocksSubject$ = new BehaviorSubject<BlockExtended[]>([]);
   blocks$: Observable<BlockExtended[]>;
   transactions$ = new BehaviorSubject<TransactionStripped[]>(null);
-  conversions$ = new ReplaySubject<any>(1);
+  conversions$ = new ReplaySubject<Record<string, number>>(1);
   bsqPrice$ = new ReplaySubject<number>(1);
   mempoolInfo$ = new ReplaySubject<MempoolInfo>(1);
   mempoolBlocks$ = new ReplaySubject<MempoolBlock[]>(1);

@@ -31,6 +31,7 @@ export interface CpfpInfo {
   acceleration?: boolean;
   acceleratedBy?: number[];
   acceleratedAt?: number;
+  feeDelta?: number;
 }
 
 export interface RbfInfo {
@@ -408,6 +409,7 @@ export interface Acceleration {
   bidBoost?: number;
   boostCost?: number;
   boostRate?: number;
+  minedByPoolUniqueId?: number;
 }
 
 export interface AccelerationHistoryParams {
