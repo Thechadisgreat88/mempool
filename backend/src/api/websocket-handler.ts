@@ -16,6 +16,7 @@ import transactionUtils from './transaction-utils';
 import rbfCache, { ReplacementInfo } from './rbf-cache';
 import difficultyAdjustment from './difficulty-adjustment';
 import feeApi from './fee-api';
+import BlocksRepository from '../repositories/BlocksRepository';
 import BlocksAuditsRepository from '../repositories/BlocksAuditsRepository';
 import BlocksSummariesRepository from '../repositories/BlocksSummariesRepository';
 import Audit from './audit';
@@ -34,6 +35,7 @@ interface AddressTransactions {
 }
 import bitcoinSecondClient from './bitcoin/bitcoin-second-client';
 import { calculateMempoolTxCpfp } from './cpfp';
+import { getRecentFirstSeen } from '../utils/file-read';
 
 // valid 'want' subscriptions
 const wantable = [
@@ -520,14 +522,25 @@ class WebsocketHandler {
     }
   }
 
+  /**
+   *
+   * @param newMempool
+   * @param mempoolSize
+   * @param newTransactions  array of transactions added this mempool update.
+   * @param recentlyDeletedTransactions array of arrays of transactions removed in the last N mempool updates, most recent first.
+   * @param accelerationDelta
+   * @param candidates
+   */
   async $handleMempoolChange(newMempool: { [txid: string]: MempoolTransactionExtended }, mempoolSize: number,
-    newTransactions: MempoolTransactionExtended[], deletedTransactions: MempoolTransactionExtended[], accelerationDelta: string[],
+    newTransactions: MempoolTransactionExtended[], recentlyDeletedTransactions: MempoolTransactionExtended[][], accelerationDelta: string[],
     candidates?: GbtCandidates): Promise<void> {
     if (!this.webSocketServers.length) {
       throw new Error('No WebSocket.Server have been set');
     }
 
     this.printLogs();
+
+    const deletedTransactions = recentlyDeletedTransactions.length ? recentlyDeletedTransactions[0] : [];
 
     const transactionIds = (memPool.limitGBT && candidates) ? Object.keys(candidates?.txs || {}) : Object.keys(newMempool);
     let added = newTransactions;
@@ -547,7 +560,7 @@ class WebsocketHandler {
     const mBlockDeltas = mempoolBlocks.getMempoolBlockDeltas();
     const mempoolInfo = memPool.getMempoolInfo();
     const vBytesPerSecond = memPool.getVBytesPerSecond();
-    const rbfTransactions = Common.findRbfTransactions(newTransactions, deletedTransactions);
+    const rbfTransactions = Common.findRbfTransactions(newTransactions, recentlyDeletedTransactions.flat());
     const da = difficultyAdjustment.getDifficultyAdjustment();
     const accelerations = memPool.getAccelerations();
     memPool.handleRbfTransactions(rbfTransactions);
@@ -578,7 +591,7 @@ class WebsocketHandler {
     const replacedTransactions: { replaced: string, by: TransactionExtended }[] = [];
     for (const tx of newTransactions) {
       if (rbfTransactions[tx.txid]) {
-        for (const replaced of rbfTransactions[tx.txid]) {
+        for (const replaced of rbfTransactions[tx.txid].replaced) {
           replacedTransactions.push({ replaced: replaced.txid, by: tx });
         }
       }
@@ -947,7 +960,7 @@ class WebsocketHandler {
     await accelerationRepository.$indexAccelerationsForBlock(block, accelerations, structuredClone(transactions));
 
     const rbfTransactions = Common.findMinedRbfTransactions(transactions, memPool.getSpendMap());
-    memPool.handleMinedRbfTransactions(rbfTransactions);
+    memPool.handleRbfTransactions(rbfTransactions);
     memPool.removeFromSpendMap(transactions);
 
     if (config.MEMPOOL.AUDIT && memPool.isInSync()) {
@@ -1014,6 +1027,14 @@ class WebsocketHandler {
       const mBlocks = mempoolBlocks.getMempoolBlocksWithTransactions();
       if (mBlocks?.length && mBlocks[0].transactions) {
         block.extras.similarity = Common.getSimilarity(mBlocks[0], transactions);
+      }
+    }
+
+    if (config.CORE_RPC.DEBUG_LOG_PATH && block.extras) {
+      const firstSeen = getRecentFirstSeen(block.id);
+      if (firstSeen) {
+        BlocksRepository.$saveFirstSeenTime(block.id, firstSeen);
+        block.extras.firstSeen = firstSeen;
       }
     }
 

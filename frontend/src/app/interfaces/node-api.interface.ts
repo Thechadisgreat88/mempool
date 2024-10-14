@@ -203,6 +203,7 @@ export interface BlockExtension {
     id: number;
     name: string;
     slug: string;
+    minerNames: string[] | null;
   }
 }
 
@@ -239,7 +240,7 @@ export interface TransactionStripped {
   acc?: boolean;
   flags?: number | null;
   time?: number;
-  status?: 'found' | 'missing' | 'sigop' | 'fresh' | 'freshcpfp' | 'added' | 'added_prioritized' | 'prioritized' | 'censored' | 'selected' | 'rbf' | 'accelerated';
+  status?: 'found' | 'missing' | 'sigop' | 'fresh' | 'freshcpfp' | 'added' | 'added_prioritized' | 'prioritized' | 'added_deprioritized' | 'deprioritized' | 'censored' | 'selected' | 'rbf' | 'accelerated';
   context?: 'projected' | 'actual';
 }
 
@@ -451,4 +452,22 @@ export interface TestMempoolAcceptResult {
     "effective-includes": string[],
   },
   ['reject-reason']?: string,
+}
+
+export interface SubmitPackageResult {
+  package_msg: string;
+  "tx-results": { [wtxid: string]: TxResult };
+  "replaced-transactions"?: string[];
+}
+
+export interface TxResult {
+  txid: string;
+  "other-wtxid"?: string;
+  vsize?: number;
+  fees?: {
+    base: number;
+    "effective-feerate"?: number;
+    "effective-includes"?: string[];
+  };
+  error?: string;
 }
