@@ -203,6 +203,7 @@ export interface BlockExtension {
     id: number;
     name: string;
     slug: string;
+    minerNames: string[] | null;
   }
 }
 
@@ -451,4 +452,22 @@ export interface TestMempoolAcceptResult {
     "effective-includes": string[],
   },
   ['reject-reason']?: string,
+}
+
+export interface SubmitPackageResult {
+  package_msg: string;
+  "tx-results": { [wtxid: string]: TxResult };
+  "replaced-transactions"?: string[];
+}
+
+export interface TxResult {
+  txid: string;
+  "other-wtxid"?: string;
+  vsize?: number;
+  fees?: {
+    base: number;
+    "effective-feerate"?: number;
+    "effective-includes"?: string[];
+  };
+  error?: string;
 }
