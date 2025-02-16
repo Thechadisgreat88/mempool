@@ -1,12 +1,12 @@
-import { Component, OnDestroy, OnInit, ChangeDetectorRef } from "@angular/core";
-import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, ValidationErrors } from "@angular/forms";
-import { Subscription } from "rxjs";
-import { ServicesApiServices } from "../../services/services-api.service";
-import { getRegex } from "../../shared/regex.utils";
-import { StateService } from "../../services/state.service";
-import { WebsocketService } from "../../services/websocket.service";
-import { AudioService } from "../../services/audio.service";
-import { HttpErrorResponse } from "@angular/common/http";
+import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
+import { Subscription } from 'rxjs';
+import { ServicesApiServices } from '@app/services/services-api.service';
+import { getRegex } from '@app/shared/regex.utils';
+import { StateService } from '@app/services/state.service';
+import { WebsocketService } from '@app/services/websocket.service';
+import { AudioService } from '@app/services/audio.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-faucet',
@@ -24,7 +24,7 @@ export class FaucetComponent implements OnInit, OnDestroy {
     min: number; // minimum amount to request at once (in sats)
     max: number; // maximum amount to request at once
     address?: string; // faucet address
-    code: 'ok' | 'faucet_not_available' | 'faucet_maximum_reached' | 'faucet_too_soon';
+    code: 'ok' | 'faucet_not_available' | 'faucet_maximum_reached' | 'faucet_too_soon' | 'faucet_not_available_no_utxo';
   } | null = null;
   faucetForm: FormGroup;
 

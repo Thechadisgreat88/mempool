@@ -162,6 +162,14 @@ interface IConfig {
     PAID: boolean;
     API_KEY: string;
   },
+  WALLETS: {
+    ENABLED: boolean;
+    WALLETS: string[];
+  },
+  STRATUM: {
+    ENABLED: boolean;
+    API: string;
+  }
 }
 
 const defaults: IConfig = {
@@ -324,6 +332,14 @@ const defaults: IConfig = {
     'PAID': false,
     'API_KEY': '',
   },
+  'WALLETS': {
+    'ENABLED': false,
+    'WALLETS': [],
+  },
+  'STRATUM': {
+    'ENABLED': false,
+    'API': 'http://localhost:1234',
+  }
 };
 
 class Config implements IConfig {
@@ -345,6 +361,8 @@ class Config implements IConfig {
   MEMPOOL_SERVICES: IConfig['MEMPOOL_SERVICES'];
   REDIS: IConfig['REDIS'];
   FIAT_PRICE: IConfig['FIAT_PRICE'];
+  WALLETS: IConfig['WALLETS'];
+  STRATUM: IConfig['STRATUM'];
 
   constructor() {
     const configs = this.merge(configFromFile, defaults);
@@ -366,6 +384,8 @@ class Config implements IConfig {
     this.MEMPOOL_SERVICES = configs.MEMPOOL_SERVICES;
     this.REDIS = configs.REDIS;
     this.FIAT_PRICE = configs.FIAT_PRICE;
+    this.WALLETS = configs.WALLETS;
+    this.STRATUM = configs.STRATUM;
   }
 
   merge = (...objects: object[]): IConfig => {
